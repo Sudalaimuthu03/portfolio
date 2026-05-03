@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+  <title>SUDALAIMUTHU E • AI DEVELOPER • SPIRAL ZIGZAG PORTFOLIO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ===== ALL ORIGINAL ANIMATIONS, FONTS, COLORS, EFFECTS PRESERVED ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+      color: #fff;
+      cursor: crosshair;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      display: block;
+      pointer-events: none;
+    }
+
+    .screen-crack-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .screen-crack-overlay.active { opacity: 1; }
+    .crack-svg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .crack-path {
+      stroke: #00ffaa;
+      stroke-width: 2;
+      fill: none;
+      filter: drop-shadow(0 0 8px #00ffaa) drop-shadow(0 0 20px #00d4ff);
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: crackDraw 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      opacity: 0;
+    }
+    .crack-path.active { opacity: 1; stroke-dashoffset: 0; }
+    @keyframes crackDraw {
+      0% { stroke-dashoffset: 1000; opacity: 0; }
+      20% { opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0.9; }
+    }
+
+    .sonic-boom {
+      position: fixed;
+      pointer-events: none;
+      z-index: 45;
+      border: 2px solid #00ffaa;
+      border-radius: 50%;
+      opacity: 0;
+      transform: scale(0);
+      animation: sonicExpand 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      box-shadow: 0 0 30px rgba(0,255,170,0.6), inset 0 0 30px rgba(0,212,255,0.3);
+    }
+    @keyframes sonicExpand {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(4); opacity: 0; }
+    }
+
+    .glitch-flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,255,170,0.15);
+      pointer-events: none;
+      z-index: 48;
+      opacity: 0;
+      animation: flashBurst 0.4s ease-out forwards;
+    }
+    @keyframes flashBurst {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .content { position: relative; z-index: 20; pointer-events: auto; }
+    .section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 10%; position: relative; backdrop-filter: blur(1px); }
+
+    .hero-title-wrapper { position: relative; display: inline-block; perspective: 800px; }
+    .hero-title {
+      font-size: clamp(5rem, 15vw, 12rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #FFFFFF, #00ffaa, #00d4ff, #aa44ff);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: aurora 5s ease infinite;
+      position: relative;
+      display: inline-block;
+      letter-spacing: -0.03em;
+      filter: drop-shadow(0 0 30px rgba(0,255,170,0.7));
+      transition: all 0.3s ease;
+      transform-style: preserve-3d;
+    }
+    .hero-title.shatter {
+      animation: aurora 5s ease infinite, shatterBounce 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+    }
+    @keyframes shatterBounce {
+      0% { transform: scale(0) rotateX(90deg); filter: drop-shadow(0 0 0px transparent); }
+      40% { transform: scale(1.3) rotateX(-20deg); filter: drop-shadow(0 0 80px #00ffaa); }
+      60% { transform: scale(0.85) rotateX(10deg); }
+      80% { transform: scale(1.05) rotateX(-5deg); }
+      100% { transform: scale(1) rotateX(0deg); filter: drop-shadow(0 0 30px rgba(0,255,170,0.7)); }
+    }
+    @keyframes aurora {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .letter-fragment {
+      position: fixed;
+      pointer-events: none;
+      z-index: 55;
+      font-weight: 900;
+      font-size: clamp(5rem, 15vw, 12rem);
+      background: linear-gradient(135deg, #FFFFFF, #00ffaa, #00d4ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: fragmentFly 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      filter: drop-shadow(0 0 20px #00ffaa);
+    }
+    @keyframes fragmentFly {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(var(--ts)); opacity: 0; }
+    }
+
+    .impact-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 54;
+      width: 6px;
+      height: 6px;
+      background: #00ffaa;
+      border-radius: 50%;
+      box-shadow: 0 0 15px #00ffaa, 0 0 30px #00d4ff;
+      animation: particleBurst 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+    @keyframes particleBurst {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
+    }
+
+    .ground-shake { animation: shakeGround 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    @keyframes shakeGround {
+      0%, 100% { transform: translateX(0); }
+      10% { transform: translateX(-15px); }
+      20% { transform: translateX(15px); }
+      30% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      50% { transform: translateX(-5px); }
+      60% { transform: translateX(5px); }
+      70% { transform: translateX(-2px); }
+      80% { transform: translateX(2px); }
+      90% { transform: translateX(-1px); }
+    }
+
+    .badge-container { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; animation: fadeSlideUp 1.2s cubic-bezier(0.2, 0.9, 0.4, 1) forwards; }
+    .hologram-badge {
+      background: rgba(0,255,170,0.08);
+      border: 1px solid rgba(0,255,170,0.5);
+      padding: 0.5rem 1.8rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      backdrop-filter: blur(12px);
+      transition: all 0.4s;
+      animation: badgePulse 2.5s infinite;
+      cursor: pointer;
+    }
+    .hologram-badge:hover {
+      background: rgba(0,255,170,0.25);
+      border-color: #fff;
+      box-shadow: 0 0 30px rgba(0,255,170,0.6);
+      transform: translateY(-3px);
+    }
+    .hologram-badge.explode { animation: badgeExplode 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; }
+    @keyframes badgeExplode {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.8; box-shadow: 0 0 60px #00ffaa; }
+      100% { transform: scale(0.8); opacity: 0.6; }
+    }
+    @keyframes badgePulse {
+      0% { box-shadow: 0 0 5px rgba(0,255,170,0.3); }
+      50% { box-shadow: 0 0 25px rgba(0,255,170,0.8); }
+      100% { box-shadow: 0 0 5px rgba(0,255,170,0.3); }
+    }
+
+    .stats-row { display: flex; gap: 4rem; margin-top: 4rem; flex-wrap: wrap; }
+    .stat-card { border-left: 3px solid #00ffaa; padding-left: 1.5rem; transition: all 0.4s; animation: fadeSlideUp 1s ease forwards; opacity: 0; }
+    .stat-card:nth-child(1) { animation-delay: 0.4s; }
+    .stat-card:nth-child(2) { animation-delay: 0.6s; }
+    .stat-card:nth-child(3) { animation-delay: 0.8s; }
+    .stat-card:hover { transform: translateX(12px); border-left-color: #00d4ff; text-shadow: 0 0 20px #00ffaa; }
+    .stat-number { font-size: 2.8rem; font-weight: 800; color: #00ffaa; text-shadow: 0 0 20px rgba(0,255,170,0.7); transition: 0.3s; }
+
+    .section-header {
+      text-align: center;
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 4rem;
+      background: linear-gradient(90deg, #fff, #00ffaa, #00d4ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 0.05em;
+      transition: all 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+    .section-header.crash-in { animation: crashAssemble 1s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards; }
+    @keyframes crashAssemble {
+      0% { transform: scale(0.3); letter-spacing: 0.5em; opacity: 0; filter: blur(10px); }
+      50% { transform: scale(1.15); letter-spacing: -0.05em; opacity: 1; filter: blur(0); }
+      100% { transform: scale(1); letter-spacing: 0.05em; }
+    }
+
+    .hyper-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 3rem; perspective: 1500px; }
+    .hyper-card { width: 320px; height: 420px; transform-style: preserve-3d; transition: transform 0.1s linear; cursor: pointer; }
+    .hyper-card.impact-shake { animation: cardImpact 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    @keyframes cardImpact {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.08); }
+      50% { transform: scale(0.95); }
+      70% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    .hyper-card-front {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, rgba(10,20,40,0.85), rgba(0,0,0,0.7));
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0,255,170,0.3);
+      border-radius: 28px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.5s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+    .hyper-card:hover .hyper-card-front {
+      border-color: #00ffaa;
+      box-shadow: 0 0 70px rgba(0,255,170,0.5);
+      transform: translateZ(35px);
+      background: rgba(0,20,30,0.9);
+    }
+    .card-icon { font-size: 4rem; color: #00ffaa; margin-bottom: 1.5rem; transition: 0.4s; filter: drop-shadow(0 0 15px #00ffaa); }
+    .hyper-card:hover .card-icon { transform: scale(1.2) rotate(5deg); color: #fff; }
+
+    .timeline-luxury { max-width: 1000px; margin: 0 auto; }
+    .timeline-item { display: flex; gap: 2rem; margin-bottom: 3rem; opacity: 0; transform: translateX(-60px); transition: all 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.2); }
+    .timeline-item.visible { opacity: 1; transform: translateX(0); }
+    .timeline-year { font-size: 1.8rem; font-weight: 800; color: #00ffaa; min-width: 140px; text-shadow: 0 0 15px #00ffaa; }
+    .timeline-detail { background: rgba(0,255,170,0.04); border-left: 3px solid #00ffaa; padding: 1.5rem; flex: 1; backdrop-filter: blur(8px); transition: 0.3s; }
+
+    .zoom-burst { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; }
+    .burst-card {
+      width: 280px; height: 340px; background: radial-gradient(circle at 30% 20%, rgba(0,255,170,0.15), #030310);
+      border-radius: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      border: 1px solid rgba(0,255,170,0.2); transition: all 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.3); animation: burstFloat 4s infinite alternate;
+    }
+    .burst-card:hover { transform: scale(1.12) translateY(-25px); border-color: #00ffaa; box-shadow: 0 35px 60px rgba(0,255,170,0.5); }
+    @keyframes burstFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-12px); } }
+
+    /* ----- QUANTUM COMMUNICATION CARD - ENHANCED VISIBILITY & CONTRAST ----- */
+    .portal {
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(28px);
+      border-radius: 60px;
+      padding: 3rem;
+      text-align: center;
+      border: 2px solid #00ffaa;
+      box-shadow: 0 0 50px rgba(0, 255, 170, 0.7), inset 0 0 20px rgba(0, 255, 170, 0.3);
+      max-width: 800px;
+      margin: 0 auto;
+      transition: all 0.6s;
+      animation: portalGlowEnhanced 2.5s infinite alternate;
+    }
+    @keyframes portalGlowEnhanced {
+      0% { 
+        border-color: #00ffaa; 
+        box-shadow: 0 0 30px rgba(0, 255, 170, 0.5), inset 0 0 10px rgba(0, 255, 170, 0.2); 
+        background: rgba(0, 0, 0, 0.85);
+      }
+      100% { 
+        border-color: #88ffdd; 
+        box-shadow: 0 0 90px rgba(0, 255, 170, 0.9), inset 0 0 40px rgba(0, 255, 170, 0.5); 
+        background: rgba(5, 20, 15, 0.92);
+      }
+    }
+
+    .portal h2 {
+      font-size: 2rem;
+      margin: 1rem 0;
+      background: linear-gradient(135deg, #ffffff, #ccffdd);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+      text-shadow: 0 0 15px #00ffaa;
+    }
+
+    .contact-chip {
+      background: #0a1a1f;
+      border: 1.5px solid #00ffaa;
+      padding: 0.9rem 2rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: 0.4s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      backdrop-filter: blur(8px);
+      font-weight: 600;
+      color: #ffffff;
+      text-shadow: 0 0 5px #00ffaa;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 12px rgba(0, 255, 170, 0.4);
+    }
+    .contact-chip i {
+      font-size: 1.3rem;
+      color: #00ffaa;
+      filter: drop-shadow(0 0 6px #00ffaa);
+    }
+    .contact-chip:hover {
+      background: #00ffaa20;
+      transform: translateY(-5px) scale(1.02);
+      border-color: #ffffff;
+      box-shadow: 0 0 35px #00ffaa;
+      color: #ffffff;
+    }
+    .portal .contact-chip:active {
+      transform: scale(0.98);
+    }
+    .portal .dimensional-btn {
+      margin-top: 2rem;
+      background: linear-gradient(95deg, #00cc99, #00ffcc);
+      font-weight: 800;
+    }
+    .portal .dimensional-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 70px #00ffaa;
+    }
+
+    .dimensional-btn {
+      background: linear-gradient(90deg, #00ffaa, #00d4ff);
+      border: none;
+      padding: 1rem 2.8rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 60px;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.4s;
+      margin-top: 2rem;
+      letter-spacing: 0.1em;
+      box-shadow: 0 0 25px rgba(0,255,170,0.5);
+      animation: btnPulse 2s infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    .dimensional-btn:hover { transform: scale(1.08); box-shadow: 0 0 55px rgba(0,255,170,0.9); }
+    .dimensional-btn:active { animation: btnCrash 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+    @keyframes btnCrash { 0% { transform: scale(1); } 50% { transform: scale(0.9); box-shadow: 0 0 80px #00ffaa; } 100% { transform: scale(1.05); } }
+    @keyframes btnPulse { 0% { box-shadow: 0 0 20px rgba(0,255,170,0.4); } 50% { box-shadow: 0 0 45px rgba(0,255,170,0.8); } 100% { box-shadow: 0 0 20px rgba(0,255,170,0.4); } }
+
+    @keyframes fadeSlideUp { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+    .reveal-up { opacity: 0; transform: translateY(60px); transition: all 0.9s cubic-bezier(0.2, 0.9, 0.4, 1.2); }
+    .reveal-up.revealed { opacity: 1; transform: translateY(0); }
+    .dust-cloud { position: fixed; pointer-events: none; z-index: 46; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,255,170,0.4) 0%, transparent 70%); border-radius: 50%; animation: dustExpand 2s ease-out forwards; opacity: 0; }
+    @keyframes dustExpand { 0% { transform: scale(0.5); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
+    @media (max-width: 800px) { .section { padding: 0 5%; } .stats-row { gap: 1.5rem; } .timeline-item { flex-direction: column; } .portal { padding: 2rem; } .contact-chip { padding: 0.6rem 1.2rem; font-size: 0.8rem; } }
+
+    .portal > div[style*="margin-top: 2rem;"] {
+      color: #ccffdd;
+      background: rgba(0,0,0,0.5);
+      display: inline-block;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="grid-canvas"></canvas>
+  <div class="screen-crack-overlay" id="screenCrack">
+    <svg class="crack-svg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+      <path class="crack-path" id="crackPath1" d="M960,0 L920,200 L980,350 L900,500 L970,700 L880,900 L960,1080" />
+      <path class="crack-path" id="crackPath2" d="M960,0 L1020,180 L940,320 L1050,480 L920,650 L1000,820 L960,1080" />
+      <path class="crack-path" id="crackPath3" d="M0,540 L300,500 L500,580 L700,520 L1000,560 L1400,510 L1920,540" />
+      <path class="crack-path" id="crackPath4" d="M200,0 L250,200 L180,400 L300,600 L200,800 L280,1080" />
+      <path class="crack-path" id="crackPath5" d="M1700,0 L1650,250 L1750,450 L1600,700 L1720,900 L1680,1080" />
+    </svg>
+  </div>
+
+  <div class="content" id="mainContent">
+    <section class="section" id="heroSection">
+      <div class="badge-container">
+        <span class="hologram-badge" id="badge1"><i class="fas fa-microchip"></i> PYTHON • AI SPECIALIST</span>
+        <span class="hologram-badge" id="badge2"><i class="fas fa-brain"></i> LLM • TRANSFORMERS</span>
+      </div>
+      <div class="hero-title-wrapper">
+        <h1 class="hero-title" id="heroTitle">SUDALAIMUTHU E</h1>
+      </div>
+      <div style="font-size: 1.3rem; color: #ccc; letter-spacing: 0.25em; margin-bottom: 2rem; animation: fadeSlideUp 1s 0.8s forwards; opacity:0;" id="subtitleLine">✦ PRODUCTION AI • NLP ENGINEER ✦</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-number" id="stat1">0</div><div>Daily Ops Processed [K+]</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat2">0</div><div>Sentiment Accuracy [%]</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat3">0</div><div>Latency Reduction [%]</div></div>
+      </div>
+      <button class="dimensional-btn" id="exploreBtn">⚡ ENTER THE GRID ⚡</button>
+    </section>
+
+    <section class="section" id="toolkitSection">
+      <h2 class="section-header reveal-up" id="toolkitHeader">✦ TECH STACK • AI FRAMEWORKS ✦</h2>
+      <div class="hyper-grid">
+        <div class="hyper-card" id="card1"><div class="hyper-card-front"><div class="card-icon"><i class="fab fa-python"></i></div><h3>Core Languages</h3><p>Python • HTML • CSS • JS</p><p style="margin-top:12px; font-size:0.8rem;">Flask • REST APIs • WSGI</p></div></div>
+        <div class="hyper-card" id="card2"><div class="hyper-card-front"><div class="card-icon"><i class="fas fa-robot"></i></div><h3>AI/ML Engines</h3><p>PyTorch • Hugging Face • Transformers<br>Scikit-learn • NLTK • TensorFlow</p></div></div>
+        <div class="hyper-card" id="card3"><div class="hyper-card-front"><div class="card-icon"><i class="fas fa-chart-line"></i></div><h3>NLP • LLM</h3><p>Sentiment Analysis • Text Summarization<br>T5 • LLM Fine-tuning • Ollama</p></div></div>
+      </div>
+    </section>
+
+    <section class="section" id="timelineSection">
+      <h2 class="section-header reveal-up" id="timelineHeader">⟡ PROFESSIONAL JOURNEY ⟡</h2>
+      <div class="timeline-luxury">
+        <div class="timeline-item" id="exp1"><div class="timeline-year">2025 — Present</div><div class="timeline-detail"><h3 style="color:#00ffaa">Python/AI Developer @ TVM Signalling</h3><p>✅ Flask REST APIs • 50K+ comments daily NLP • 87% sentiment accuracy<br>✅ Reduced inference latency by 35% • 1000+ concurrent requests • 99.5% uptime SLA</p></div></div>
+        <div class="timeline-item" id="exp2"><div class="timeline-year">2021 — 2025</div><div class="timeline-detail"><h3 style="color:#00ffaa">B.E. Computer Science Engineering</h3><p>VV College of Engineering • CGPA: 8.18/10<br>Specialization: Deep Learning, Transformers, Model Optimization</p></div></div>
+        <div class="timeline-item" id="exp3"><div class="timeline-year">2020 — 2021</div><div class="timeline-detail"><h3 style="color:#00ffaa">Higher Secondary • 92.4%</h3><p>T.N.D.T.A R.M.P Pulamadan Chettiar National HR Sec School<br>Foundation in Mathematics & Computer Science</p></div></div>
+      </div>
+    </section>
+
+    <section class="section" id="projectsSection">
+      <h2 class="section-header reveal-up" id="projectsHeader">✦ KEY ACHIEVEMENTS ✦</h2>
+      <div class="zoom-burst">
+        <div class="burst-card reveal-up"><i class="fas fa-chart-simple" style="font-size: 3rem; color:#00ffaa; margin-bottom:1rem"></i><h3>Production NLP</h3><p>87% Sentiment Accuracy<br>50K+ comments/day</p></div>
+        <div class="burst-card reveal-up"><i class="fas fa-tachometer-alt" style="font-size: 3rem; color:#00d4ff; margin-bottom:1rem"></i><h3>Optimization</h3><p>35% Latency Reduction<br>GPU Memory Optimization</p></div>
+        <div class="burst-card reveal-up"><i class="fas fa-shield-alt" style="font-size: 3rem; color:#00ffaa; margin-bottom:1rem"></i><h3>Data Validation</h3><p>98% Low-quality text filtered<br>45% Model performance boost</p></div>
+      </div>
+    </section>
+
+    <section class="section" style="min-height: 80vh;" id="contactSection">
+      <div class="portal reveal-up">
+        <i class="fas fa-satellite-dish" style="font-size: 3.5rem; color:#00ffaa; filter: drop-shadow(0 0 12px #00ffaa);"></i>
+        <h2 style="font-size: 2rem; margin: 1rem 0;">⚛️ Quantum Communication ⚛️</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; margin-top: 2rem;">
+          <div class="contact-chip" data-copy="sudalaimuthu.offi@gmail.com"><i class="fas fa-envelope"></i> sudalaimuthu.offi@gmail.com</div>
+          <div class="contact-chip" data-copy="+91 9025398020"><i class="fas fa-phone-alt"></i> +91 9025398020</div>
+          <div class="contact-chip" data-copy="linkedin.com/in/sudalaimuthu-e-25ju003"><i class="fab fa-linkedin"></i> linkedin.com/in/sudalaimuthu-e</div>
+        </div>
+        <div style="margin-top: 2rem; font-size: 1rem; opacity: 0.95; font-weight: 500; background: rgba(0,0,0,0.6); display: inline-block; padding: 0.5rem 1.8rem; border-radius: 40px; backdrop-filter: blur(10px); letter-spacing: 1px;">
+          📍 Sathankulam, Tuticorin - 628704
+        </div>
+        <button class="dimensional-btn" id="contactAuraBtn" style="margin-top: 2rem;">⟳ TRANSMIT SIGNAL ⟳</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }</script>
+  <script type="module">
+    import * as THREE from 'three';
+    const canvas = document.getElementById('grid-canvas');
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x000000); scene.fog = new THREE.FogExp2(0x000000, 0.0035);
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // SPIRAL ZIGZAG CAMERA SYSTEM - REPLACES SMOOTH HORIZONTAL 360° ORBIT
+    // Camera follows a dynamic spiral + zigzag path based on scroll
+    const cameraState = {
+      // Spiral parameters
+      spiralAngle: 0,
+      spiralRadius: 18,
+      verticalOffset: 0,
+      zigzagPhase: 0,
+      // Target values driven by scroll
+      targetProgress: 0,
+      currentProgress: 0,
+      // For smooth interpolation
+      velocity: 0
+    };
+    
+    // Camera look target also moves in a zigzag pattern
+    const lookTarget = new THREE.Vector3(0, 1.2, 0);
+    
+    function updateSpiralCamera() {
+      // Ease in/out progress for natural spiral acceleration
+      const t = cameraState.currentProgress;
+      // Spiral angle: multiple full rotations as user scrolls (4.5 turns for a complete scroll)
+      const angle = t * Math.PI * 4.5;
+      // Spiral radius: starts at 22, shrinks to 14 as we go deeper (zooming effect)
+      const radius = 22 - t * 8;
+      // Vertical height: sine wave oscillation creates zigzag elevation (dips and rises)
+      const verticalZigzag = Math.sin(t * Math.PI * 3.2) * 2.2;
+      // Main elevation: gradually rises from 1.2 to 4.5 over scroll
+      const baseElevation = 1.5 + t * 3.5;
+      const yPos = baseElevation + verticalZigzag;
+      
+      // Horizontal zigzag modulation: adds side-to-side wobble (spiral + zigzag fusion)
+      const horizontalMod = Math.sin(t * Math.PI * 5.8) * 1.6;
+      const effectiveRadius = radius + horizontalMod * (1 - t * 0.5);
+      
+      // Compute position with spiral and zigzag
+      const xPos = Math.cos(angle) * effectiveRadius;
+      const zPos = Math.sin(angle) * effectiveRadius;
+      
+      camera.position.set(xPos, yPos, zPos);
+      
+      // Look target also dances: follows subtle zigzag path to create dynamic framing
+      const targetX = Math.sin(t * Math.PI * 2.7) * 1.2;
+      const targetY = 1.0 + Math.sin(t * Math.PI * 3.4) * 0.9;
+      const targetZ = Math.cos(t * Math.PI * 2.3) * 1.0;
+      lookTarget.set(targetX, targetY, targetZ);
+      camera.lookAt(lookTarget);
+    }
+    
+    // Scroll handling: maps scrollY to progress (0 to 1)
+    let maxScroll = 0;
+    function updateMaxScroll() {
+      maxScroll = document.body.scrollHeight - window.innerHeight;
+    }
+    window.addEventListener('resize', () => {
+      updateMaxScroll();
+    });
+    updateMaxScroll();
+    
+    function onScroll() {
+      const scrollY = window.scrollY;
+      let progress = maxScroll > 0 ? scrollY / maxScroll : 0;
+      progress = Math.min(1, Math.max(0, progress));
+      cameraState.targetProgress = progress;
+    }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    
+    // Smooth interpolation for the spiral progress
+    let lastTimestamp = 0;
+    function smoothCameraUpdate() {
+      const now = performance.now();
+      let dt = Math.min(0.033, (now - lastTimestamp) / 1000);
+      if (dt <= 0) dt = 0.016;
+      lastTimestamp = now;
+      
+      // Smooth follower with spring-like response for the spiral zigzag
+      const diff = cameraState.targetProgress - cameraState.currentProgress;
+      cameraState.velocity = cameraState.velocity * 0.88 + diff * 4.2 * dt;
+      cameraState.currentProgress += cameraState.velocity * dt;
+      cameraState.currentProgress = Math.min(1, Math.max(0, cameraState.currentProgress));
+      
+      updateSpiralCamera();
+    }
+    
+    // --- ALL ORIGINAL THREE.JS SCENE SETUP (preserved fully) ---
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const gridHelper = new THREE.GridHelper(44, 88, 0x00ffaa, 0x00d4ff);
+    gridHelper.position.y = -3.8;
+    gridHelper.material.transparent = true;
+    gridHelper.material.opacity = 0.45;
+    scene.add(gridHelper);
+    
+    const gridHelper2 = new THREE.GridHelper(58, 100, 0xff44aa, 0x00ffaa);
+    gridHelper2.position.y = -3.0;
+    gridHelper2.material.transparent = true;
+    gridHelper2.material.opacity = 0.3;
+    scene.add(gridHelper2);
+    
+    const ringGeo = new THREE.TorusGeometry(3.0, 0.07, 64, 200);
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0x00ffaa, emissive: 0x00ffaa, emissiveIntensity: 0.8 });
+    const holoRing1 = new THREE.Mesh(ringGeo, ringMat);
+    holoRing1.position.y = 1.4;
+    scene.add(holoRing1);
+    
+    const ringMat2 = new THREE.MeshStandardMaterial({ color: 0x00d4ff, emissive: 0x00d4ff, emissiveIntensity: 0.7 });
+    const holoRing2 = new THREE.Mesh(ringGeo, ringMat2);
+    holoRing2.position.y = -0.1;
+    holoRing2.scale.set(0.88, 0.88, 0.88);
+    scene.add(holoRing2);
+    
+    const ringMat3 = new THREE.MeshStandardMaterial({ color: 0xff44aa, emissive: 0xff44aa, emissiveIntensity: 0.6 });
+    const holoRing3 = new THREE.Mesh(ringGeo, ringMat3);
+    holoRing3.position.y = 2.5;
+    holoRing3.scale.set(0.7, 0.7, 0.7);
+    scene.add(holoRing3);
+    
+    const dataPanels = [];
+    [[-4.5,2.0,-3.8],[4.5,1.5,-4.5],[-3.4,2.3,-5.6],[4.0,2.1,-5.1],[0,3.0,-6.5]].forEach(pos=>{
+      const geo=new THREE.BoxGeometry(1.0,1.0,0.14);
+      const mat=new THREE.MeshStandardMaterial({color:0x00ffaa,emissive:0x00aa77,wireframe:true,transparent:true,opacity:0.7});
+      const panel=new THREE.Mesh(geo,mat);
+      panel.position.set(pos[0],pos[1],pos[2]);
+      scene.add(panel);
+      dataPanels.push(panel);
+    });
+    
+    const codeLines = [];
+    for(let i=0;i<40;i++){
+      const pts=[];
+      for(let j=0;j<14;j++) pts.push(new THREE.Vector3((Math.random()-0.5)*17,(Math.random()-0.5)*10+2,(Math.random()-0.5)*24-17));
+      const geo=new THREE.BufferGeometry().setFromPoints(pts);
+      const mat=new THREE.LineBasicMaterial({color:Math.random()>0.5?0x00ffaa:0x00d4ff,transparent:true,opacity:0.4});
+      const line=new THREE.Line(geo,mat);
+      scene.add(line);
+      codeLines.push({line,points:pts,speed:0.002+Math.random()*0.005});
+    }
+    
+    const pillarLight = new THREE.PointLight(0x00ffaa,1.0,24);
+    pillarLight.position.set(0,0,0);
+    scene.add(pillarLight);
+    const backLight = new THREE.PointLight(0x00d4ff,0.7);
+    backLight.position.set(0,0,-10);
+    scene.add(backLight);
+    scene.add(new THREE.AmbientLight(0x112244));
+    
+    let time = 0;
+    let targetZoom = 0;
+    let currentZoom = 0;
+    
+    // Additional scroll effect for visual elements (rings, panels) - matches original but adapted for spiral zigzag feel
+    window.addEventListener('scroll', () => {
+      const sp = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      targetZoom = Math.min(1, sp * 1.6);
+    });
+    
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+    });
+    
+    function animateScene() {
+      requestAnimationFrame(animateScene);
+      time += 0.012;
+      smoothCameraUpdate();
+      
+      currentZoom += (targetZoom - currentZoom) * 0.07;
+      
+      // Subtle mouse influence on camera look target (adds extra dynamic but doesn't break spiral)
+      const mouseInflX = mouseX * 0.8;
+      const mouseInflY = mouseY * 0.5;
+      const finalLookX = lookTarget.x + mouseInflX * 0.3;
+      const finalLookY = lookTarget.y + mouseInflY * 0.2;
+      const finalLookZ = lookTarget.z;
+      camera.lookAt(finalLookX, finalLookY, finalLookZ);
+      
+      const zOff = currentZoom * 10;
+      gridHelper.position.z = zOff;
+      gridHelper2.position.z = zOff * 0.35;
+      gridHelper.material.opacity = 0.45 + currentZoom * 0.4;
+      gridHelper2.material.opacity = 0.3 + currentZoom * 0.3;
+      
+      holoRing1.rotation.x = Math.sin(time) * 0.7;
+      holoRing1.rotation.z = time * 0.4;
+      holoRing2.rotation.x = Math.cos(time * 0.9) * 0.55;
+      holoRing2.rotation.y = time * 0.3;
+      holoRing3.rotation.x = Math.sin(time * 0.8) * 0.45;
+      holoRing3.rotation.z = time * 0.5;
+      
+      const sc = 1 + currentZoom * 0.7;
+      holoRing1.scale.setScalar(sc);
+      holoRing2.scale.setScalar(0.88 + currentZoom * 0.4);
+      holoRing3.scale.setScalar(0.7 + currentZoom * 0.5);
+      
+      dataPanels.forEach((p, i) => {
+        p.rotation.x = Math.sin(time * 1.9 + i) * 0.7;
+        p.rotation.y = Math.cos(time * 1.5 + i) * 0.7;
+        p.material.emissiveIntensity = 0.4 + currentZoom * 0.9;
+      });
+      
+      codeLines.forEach(d => {
+        const np = d.points.map(p => new THREE.Vector3(p.x, p.y + Math.sin(time * 3) * 0.03, p.z + currentZoom * 0.8));
+        d.line.geometry.dispose();
+        d.line.geometry = new THREE.BufferGeometry().setFromPoints(np);
+        d.line.material.opacity = 0.3 + currentZoom * 0.5;
+      });
+      
+      pillarLight.intensity = 0.8 + currentZoom * 1.6 + Math.sin(time * 6) * 0.4;
+      renderer.render(scene, camera);
+    }
+    
+    animateScene();
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      updateMaxScroll();
+    });
+  </script>
+  <script>
+    (function(){
+      // ALL ORIGINAL INTERACTIVITY, EFFECTS, SHATTER, CRACKS, PARTICLES RETAINED (unchanged)
+      const heroTitle=document.getElementById('heroTitle'); const heroSection=document.getElementById('heroSection'); const mainContent=document.getElementById('mainContent'); const screenCrack=document.getElementById('screenCrack'); const crackPaths=document.querySelectorAll('.crack-path'); let destructionPlayed=false;
+      function createEl(tag,className,styles={}){ const el=document.createElement(tag); if(className)el.className=className; Object.assign(el.style,styles); return el; }
+      function triggerFlash(){ const flash=createEl('div','glitch-flash'); document.body.appendChild(flash); setTimeout(()=>flash.remove(),500); }
+      function spawnSonicBoom(x,y,count=3){ for(let i=0;i<count;i++){ setTimeout(()=>{ const ring=createEl('div','sonic-boom',{position:'fixed',left:(x-50)+'px',top:(y-50)+'px',width:'100px',height:'100px',animationDelay:(i*0.15)+'s',zIndex:45}); document.body.appendChild(ring); setTimeout(()=>ring.remove(),1800); },i*80); } }
+      function spawnParticles(x,y,count=40){ for(let i=0;i<count;i++){ const particle=createEl('div','impact-particle',{position:'fixed',left:x+'px',top:y+'px','--px':(Math.random()-0.5)*500+'px','--py':(Math.random()-0.5)*500+'px',animationDelay:Math.random()*0.3+'s',width:(4+Math.random()*8)+'px',height:(4+Math.random()*8)+'px',background:Math.random()>0.5?'#00ffaa':'#00d4ff'}); document.body.appendChild(particle); setTimeout(()=>particle.remove(),1800); } }
+      function spawnLetterFragments(text,x,y,count=12){ const letters=text.split(''); for(let i=0;i<count;i++){ const letter=letters[Math.floor(Math.random()*letters.length)]; const fragment=createEl('div','letter-fragment',{position:'fixed',left:(x-40+Math.random()*80)+'px',top:(y-30+Math.random()*60)+'px','--tx':(Math.random()-0.5)*600+'px','--ty':(Math.random()-0.5)*600+'px','--ts':(0.3+Math.random()*1.5),animationDelay:Math.random()*0.4+'s',fontSize:(2+Math.random()*6)+'rem',opacity:0.9}); fragment.textContent=letter; document.body.appendChild(fragment); setTimeout(()=>fragment.remove(),2000); } }
+      function activateCracks(){ screenCrack.classList.add('active'); crackPaths.forEach((path,i)=>{ setTimeout(()=>{ path.classList.add('active'); },i*150); }); setTimeout(()=>{ screenCrack.classList.remove('active'); crackPaths.forEach(p=>p.classList.remove('active')); },2500); }
+      function shakeGround(){ mainContent.classList.add('ground-shake'); setTimeout(()=>mainContent.classList.remove('ground-shake'),700); }
+      function triggerDestructionSequence(){ if(destructionPlayed)return; destructionPlayed=true; const titleRect=heroTitle.getBoundingClientRect(); const centerX=titleRect.left+titleRect.width/2; const centerY=titleRect.top+titleRect.height/2; triggerFlash(); spawnSonicBoom(centerX,centerY,4); setTimeout(()=>shakeGround(),100); setTimeout(()=>{ spawnLetterFragments('SUDALAIMUTHU',centerX,centerY,18); },200); setTimeout(()=>{ spawnParticles(centerX,centerY,50); },300); setTimeout(()=>{ activateCracks(); },500); setTimeout(()=>{ heroTitle.classList.add('shatter'); },100); setTimeout(()=>{ document.querySelectorAll('.hologram-badge').forEach((badge,i)=>{ setTimeout(()=>{ badge.classList.add('explode'); setTimeout(()=>badge.classList.remove('explode'),500); },i*200); }); },800); setTimeout(()=>{ heroTitle.classList.remove('shatter'); },2000); }
+      window.addEventListener('load',()=>{ setTimeout(triggerDestructionSequence,800); });
+      heroSection.addEventListener('click',(e)=>{ const titleRect=heroTitle.getBoundingClientRect(); const clickX=e.clientX,clickY=e.clientY; if(clickX>titleRect.left-100&&clickX<titleRect.right+100&&clickY>titleRect.top-100&&clickY<titleRect.bottom+100){ destructionPlayed=false; triggerDestructionSequence(); } });
+      const sectionHeaders=document.querySelectorAll('.section-header'); const headerObserver=new IntersectionObserver(entries=>{ entries.forEach(entry=>{ if(entry.isIntersecting){ entry.target.classList.add('crash-in'); const rect=entry.target.getBoundingClientRect(); spawnParticles(rect.left+rect.width/2,rect.top+rect.height/2,20); setTimeout(()=>entry.target.classList.remove('crash-in'),1200); } }); },{threshold:0.6}); sectionHeaders.forEach(header=>headerObserver.observe(header));
+      document.querySelectorAll('.hyper-card').forEach(card=>{ card.addEventListener('mouseenter',()=>{ card.classList.add('impact-shake'); const rect=card.getBoundingClientRect(); spawnParticles(rect.left+rect.width/2,rect.top+rect.height/2,15); setTimeout(()=>card.classList.remove('impact-shake'),600); }); });
+      document.querySelectorAll('.burst-card').forEach(card=>{ card.addEventListener('mouseenter',()=>{ const rect=card.getBoundingClientRect(); spawnParticles(rect.left+rect.width/2,rect.top+rect.height/2,12); spawnSonicBoom(rect.left+rect.width/2,rect.top+rect.height/2,1); }); });
+      document.getElementById('exploreBtn').addEventListener('click',(e)=>{ const rect=e.target.getBoundingClientRect(); const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2; triggerFlash(); spawnParticles(cx,cy,30); spawnSonicBoom(cx,cy,2); shakeGround(); setTimeout(()=>{ document.querySelector('.hyper-grid').scrollIntoView({behavior:'smooth'}); },300); });
+      document.querySelectorAll('.contact-chip').forEach(chip=>{ chip.addEventListener('click',(e)=>{ const rect=chip.getBoundingClientRect(); spawnParticles(rect.left+rect.width/2,rect.top+rect.height/2,10); const text=chip.getAttribute('data-copy'); if(text){ navigator.clipboard.writeText(text); const orig=chip.innerHTML; chip.innerHTML='<i class="fas fa-check"></i> COPIED!'; setTimeout(()=>chip.innerHTML=orig,1500); } }); });
+      function animateStat(el,target,isPercent=false){ let cur=0; const step=target/65; const upd=()=>{ cur+=step; if(cur<target){ el.innerText=isPercent?cur.toFixed(2):Math.floor(cur); requestAnimationFrame(upd); } else { el.innerText=isPercent?target.toFixed(2):target; } }; upd(); }
+      setTimeout(()=>{ animateStat(document.getElementById('stat1'),50); animateStat(document.getElementById('stat2'),87.00,true); animateStat(document.getElementById('stat3'),35); },1200);
+      const revealEls=document.querySelectorAll('.reveal-up'); const timelineItems=document.querySelectorAll('.timeline-item'); function handleReveal(){ const trig=window.innerHeight*0.85; revealEls.forEach(el=>{ if(el.getBoundingClientRect().top<trig)el.classList.add('revealed'); }); timelineItems.forEach((item,idx)=>{ if(item.getBoundingClientRect().top<trig)setTimeout(()=>item.classList.add('visible'),idx*120); }); } window.addEventListener('scroll',handleReveal); handleReveal();
+      document.querySelectorAll('.hyper-card').forEach(card=>{ card.addEventListener('mousemove',(e)=>{ const r=card.getBoundingClientRect(); const x=(e.clientX-r.left)/r.width-0.5; const y=(e.clientY-r.top)/r.height-0.5; card.style.transform=`perspective(1400px) rotateY(${x*24}deg) rotateX(${y*-24}deg)`; }); card.addEventListener('mouseleave',()=>{ card.style.transform='perspective(1400px) rotateY(0) rotateX(0)'; }); });
+      const contactBtn = document.getElementById('contactAuraBtn');
+      if(contactBtn){
+        contactBtn.addEventListener('click',()=>{
+          const portalCard = document.querySelector('.portal');
+          if(portalCard){
+            portalCard.style.animation = 'none';
+            portalCard.offsetHeight;
+            portalCard.style.animation = 'portalGlowEnhanced 2.5s infinite alternate';
+            const rect=portalCard.getBoundingClientRect();
+            spawnParticles(rect.left+rect.width/2, rect.top+rect.height/2, 48);
+            spawnSonicBoom(rect.left+rect.width/2, rect.top+rect.height/2, 2);
+            triggerFlash();
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
